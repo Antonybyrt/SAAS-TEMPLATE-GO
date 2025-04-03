@@ -12,6 +12,7 @@ export class AuthService {
                 email,
                 password
             });
+            ErrorService.mixinMessage("Registered successfully", "success");
             return res.data;
         } catch(err) {
             ErrorService.mixinMessage("Failed to register", "error");
@@ -25,9 +26,9 @@ export class AuthService {
                 email,
                 password
             });
-            console.log("DATAAAA", res.data)
             if(res.data.token) {
                 localStorage.setItem("token", res.data.token);
+                ErrorService.mixinMessage("Logged in successfully", "success");
                 return res.data;
             }
         } catch(err) {
@@ -61,5 +62,24 @@ export class AuthService {
 
     static isAuthenticated(): boolean {
         return !!localStorage.getItem("token");
+    }
+
+    static async upgrade(): Promise<void> {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                throw new Error("Not authenticated");
+            }
+
+            await axios.post(`${ApiService.baseURL}/upgrade`, {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            ErrorService.mixinMessage("Successfully upgraded your account", "success");
+        } catch(err) {
+            ErrorService.mixinMessage("Failed to upgrade account", "error");
+            throw err;
+        }
     }
 }

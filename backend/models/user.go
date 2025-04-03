@@ -5,11 +5,12 @@ import (
 )
 
 type User struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	FirstName string `json:"first_name"`
-	Email     string `json:"email"`
-	Password  string `json:"-"`
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	FirstName   string `json:"first_name"`
+	Email       string `json:"email"`
+	Password    string `json:"-"`
+	HasUpgraded bool   `json:"has_upgraded"`
 }
 
 type UserSession struct {

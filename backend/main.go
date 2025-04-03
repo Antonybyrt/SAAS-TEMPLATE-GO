@@ -19,7 +19,6 @@ func main() {
 
 	r := mux.NewRouter()
 
-	// Configuration CORS
 	corsMiddleware := handlers.CORS(
 		handlers.AllowedOrigins([]string{"http://localhost:3000"}),
 		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
@@ -27,17 +26,23 @@ func main() {
 		handlers.AllowCredentials(),
 	)
 
-	// Routes publiques
+	// =============================================================
+	//                          PUBLIC ROUTES
+	// =============================================================
+
 	r.HandleFunc("/register", controllers.Register).Methods("POST")
 	r.HandleFunc("/login", controllers.Login).Methods("POST")
 
-	// Routes protégées
-	r.HandleFunc("/me", middleware.AuthMiddleware(controllers.Me)).Methods("GET")
+	// =============================================================
+	//                          PROTECTED ROUTES
+	// =============================================================
 
-	// Appliquer le middleware CORS
+	r.HandleFunc("/me", middleware.AuthMiddleware(controllers.Me)).Methods("GET")
+	r.HandleFunc("/upgrade", middleware.AuthMiddleware(controllers.Upgrade)).Methods("POST")
+	r.HandleFunc("/pairs", middleware.AuthMiddleware(controllers.GetPairs)).Methods("GET")
+
 	handler := corsMiddleware(r)
 
-	// Configuration du serveur
 	srv := &http.Server{
 		Handler:      handler,
 		Addr:         ":8080",

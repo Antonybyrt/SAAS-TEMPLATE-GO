@@ -36,8 +36,8 @@ func CreateUser(user models.RegisterRequest) error {
 		return err
 	}
 
-	_, err = config.DB.Exec("INSERT INTO users (name, first_name, email, password) VALUES (?, ?, ?, ?)",
-		user.Name, user.FirstName, user.Email, hashedPassword)
+	_, err = config.DB.Exec("INSERT INTO users (name, first_name, email, password, has_upgraded) VALUES (?, ?, ?, ?, ?)",
+		user.Name, user.FirstName, user.Email, hashedPassword, false)
 	return err
 }
 
@@ -85,4 +85,9 @@ func ValidateToken(token string) (int, error) {
 	}
 
 	return userID, nil
+}
+
+func UpgradeUser(userID int) error {
+	_, err := config.DB.Exec("UPDATE users SET has_upgraded = 1 WHERE id = ?", userID)
+	return err
 }

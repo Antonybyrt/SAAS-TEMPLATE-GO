@@ -43,11 +43,23 @@ func Login(w http.ResponseWriter, r *http.Request) {
 func Me(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("userID").(int)
 	var user models.User
-	err := config.DB.QueryRow("SELECT id, name, first_name, email FROM users WHERE id = ?", userID).Scan(&user.ID, &user.Name, &user.FirstName, &user.Email)
+	err := config.DB.QueryRow("SELECT id, name, first_name, email, has_upgraded FROM users WHERE id = ?", userID).Scan(&user.ID, &user.Name, &user.FirstName, &user.Email, &user.HasUpgraded)
 	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
 	json.NewEncoder(w).Encode(user)
+}
+
+func Upgrade(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("userID").(int)
+
+	if err := services.UpgradeUser(userID); err != nil {
+		http.Error(w, "Error upgrading user", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "User upgraded successfully"})
 }
