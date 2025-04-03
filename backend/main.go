@@ -16,6 +16,11 @@ func main() {
 	if err := config.InitDB(); err != nil {
 		log.Fatal(err)
 	}
+	defer config.DB.Close()
+
+	if err := config.CreateDatabase(); err != nil {
+		log.Fatal("Erreur lors de l'initialisation de la base de données:", err)
+	}
 
 	r := mux.NewRouter()
 
